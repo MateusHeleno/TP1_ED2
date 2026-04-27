@@ -1,8 +1,8 @@
 #ifndef AUXILIARES_H
 #define AUXILIARES_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>   
+#include <stdlib.h>  
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
@@ -16,11 +16,19 @@ typedef struct {
 
 typedef struct {
     bool encontrado;
-    int transferencias;
-    int comparacoes;
-    double tempo;
+    int transferencias;   
+    int comparacoes;      
+    double tempo; 
 } Metricas;
 
-void criarArquivo(const char* caminho, int qnt_registros, int situacao);
+typedef struct{
+    int metodo;
+    int qnt_registros;
+    int situacao;
+    int chave;
+    bool p;
+} Config;
+
+void criarArquivo(const char* caminho, int qnt_registros, int situacao)
 
 #endif

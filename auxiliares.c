@@ -1,6 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "auxiliares.h"
+
+int validaEntrada(int argc, char *argv[],Config *config){
+    if (argc < 5 || argc > 6) {
+        printf("O formato é inválido.\nSiga esse formato: ./exe <método> <quantidade> <situação> <chave> [-P]\n");
+        return false;
+    }
+
+    config->metodo = atoi(argv[1]);
+    if (config->metodo < 1 || config->metodo > 4) { // verifica se o valor recebido é válido
+        printf("Método deve ter os valores entre 1 e 4\n");
+        return false;
+    }
+
+    config->qnt_registros = atoi(argv[2]);
+    config->situacao = atoi(argv[3]);
+    if (config->situacao < 1 || config->situacao > 3) { // verifica se o valor recebido é válido
+        printf("Situação deve ter os valores entre 1 e 3\n");
+        return false;
+    }
+
+    config->chave = atoi(argv[4]);
+    if (argc == 6)
+        p = atoi(argv[argc - 1]);
+
+    return true;
+}
 
 void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
     FILE *arquivo = fopen(caminho, "w+b");
