@@ -38,4 +38,11 @@ Implementação: Desenvolvimento dos métodos em linguagem C.
 
 
 Análise Experimental: Coleta de dados sobre o número de transferências (leitura), número de comparações entre chaves e tempo total de execução.
-📊 Análise de DesempenhoPara a fase de testes, o sistema realiza a pesquisa automática de 10 chaves distintas para calcular a média dos seguintes quesitos:Transferências entre memória interna e externa;Comparações entre chaves;Tempo de execução (excluindo o tempo de criação do arquivo binário).
+
+📊 Análise de DesempenhoPara a fase de testes, o sistema realiza a pesquisa automática de 10 chaves distintas para calcular a média dos seguintes quesitos:
+
+Transferências entre memória interna e externa;
+
+Comparações entre chaves;
+
+Tempo de execução (excluindo o tempo de criação do arquivo binário).
