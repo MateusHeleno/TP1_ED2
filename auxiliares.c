@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>   
+#include <stdlib.h>  
+#include <string.h>
 #include <stdbool.h>
+#include <time.h>
 #include "auxiliares.h"
 
-int validaEntrada(int argc, char *argv[],Config *config){
+bool validaEntrada(int argc, char *argv[],Config *config){
     if (argc < 5 || argc > 6) {
         printf("O formato é inválido.\nSiga esse formato: ./exe <método> <quantidade> <situação> <chave> [-P]\n");
         return false;
@@ -23,8 +25,17 @@ int validaEntrada(int argc, char *argv[],Config *config){
     }
 
     config->chave = atoi(argv[4]);
-    if (argc == 6)
-        p = atoi(argv[argc - 1]);
+    
+    if (argc == 6){
+        if (strcmp(argv[5], "-P") == 0) {
+            config->p = 1; 
+        } else {
+            printf("O sexto argumento deve ser '-P' ou vazio \n");
+            return false;
+        }
+    } else {
+        config->p = 0; 
+    }
 
     return true;
 }

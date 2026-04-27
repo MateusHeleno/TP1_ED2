@@ -7,4 +7,6 @@
 #include <time.h>
 #include "auxiliares.h"
 
+#define ITENS_PAGINA 8
+
 #endif

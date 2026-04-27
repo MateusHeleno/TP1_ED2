@@ -10,26 +10,41 @@
 #include "arvB.h"
 #include "arvBE.h"
 
-int main(int argc, char *argv[]) {
-    
+int main(int argc, char *argv[]) {    
     srand(time(NULL));
     
     Config config;
     if(!validaEntrada(argc,argv,&config))
-        return 0;
+        return 1;
 
-
-    
     // nomenclatura dos arquivos: arquivos/bin_{qnt-registros}_{situacao}
-    // exemplo: arquivo/bin_100_situacao1 -> arquivo binário com 100 registros e ordenação ascendente
     char nomeArquivo[64];
-    sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", qnt_registros, situacao);
+    sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", config->qnt_registros, config->situacao);
 
     FILE* arquivo = fopen(nomeArquivo, "rb");
     if (!arquivo) {
-        criarArquivo(nomeArquivo, qnt_registros, situacao);
+        criarArquivo(nomeArquivo, config->qnt_registros, config->situacao);
         return 0;
     }
+
+    // switch(config->metodo){
+    //     Acesso sequencial indexado
+    //     case 1:
+    //         acessoSequencialIndexado();
+    //         break;
+    //
+    //     Árvore Binária de Pesquisa
+    //     case 2:
+    //         break; 
+    // 
+    //     Árvore B 
+    //     case 3:  
+    //         break;
+    // 
+    //     Arvore B*
+    //     case 4:
+    //         break;
+    // }
 
     fclose(arquivo);
     return 0;
