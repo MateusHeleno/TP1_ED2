@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "auxiliares.h"
+
+void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
+    FILE *arquivo = fopen(caminho, "w+b");
+    if (!arquivo) {
+        printf("Erro ao abrir/criar arquivo.\n");
+        return;
+    }
+
+    Registro reg;
+    // a funcão memset() preenche os primeiros n bytes de um bloco com algum valor
+    memset(reg.dado2, 'A', sizeof(reg.dado2) - 1); // preenche os primeiros 999 bytes com A e depois o último como \0
+    reg.dado2[sizeof(reg.dado2) - 1] = '\0';
+
+    memset(reg.dado3, 'B', sizeof(reg.dado3) - 1);
+    reg.dado3[sizeof(reg.dado3) - 1] = '\0';
+
+    switch (situacao) {
+        // ordenação ascendente das chaves
+        case 1:
+            for (int chave = 1; chave <= qnt_registros; chave++) {
+                reg.chave = chave;
+                reg.dado1 = (rand() % qnt_registros) + 1;
+                fwrite(&reg, sizeof(Registro), 1, arquivo);
+            }
+            break;
+        // ordenação descendente das chaves
+        case 2:
+            for (int chave = qnt_registros; chave >= 1; chave--) {
+                reg.chave = chave;
+                reg.dado1 = (rand() % qnt_registros) + 1;
+                fwrite(&reg, sizeof(Registro), 1, arquivo);
+            }
+            break;
+        // ordenação aleatória
+        case 3:
+            for (int i = 0; i < qnt_registros; i++) {
+                reg.chave = (rand() % qnt_registros) + 1;
+                reg.dado1 = (rand() % qnt_registros) + 1;
+                fwrite(&reg, sizeof(Registro), 1, arquivo);
+            }
+            break;
+    }
+
+    fclose(arquivo);
+}

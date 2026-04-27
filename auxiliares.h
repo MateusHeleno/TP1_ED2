@@ -21,5 +21,6 @@ typedef struct {
     double tempo;
 } Metricas;
 
+void criarArquivo(const char* caminho, int qnt_registros, int situacao);
 
 #endif
