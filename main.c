@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdbool>
+#include <stdbool.h>
 
 #include "auxiliares.h"
 #include "acessoSequencial.h"
@@ -10,11 +10,11 @@
 #include "arvB.h"
 #include "arvBE.h"
 
-int main(int argc, char *argv[]) {    
+int main(int argc, char *argv[]) {
     srand(time(NULL));
-    
-    Config config;
-    if(!validaEntrada(argc,argv,&config))
+
+    Config *config;
+    if(!validaEntrada(argc,argv, config))
         return 1;
 
     // nomenclatura dos arquivos: arquivos/bin_{qnt-registros}_{situacao}
@@ -35,12 +35,12 @@ int main(int argc, char *argv[]) {
     //
     //     Árvore Binária de Pesquisa
     //     case 2:
-    //         break; 
-    // 
-    //     Árvore B 
-    //     case 3:  
     //         break;
-    // 
+    //
+    //     Árvore B
+    //     case 3:
+    //         break;
+    //
     //     Arvore B*
     //     case 4:
     //         break;
