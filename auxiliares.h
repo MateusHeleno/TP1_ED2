@@ -15,7 +15,6 @@ typedef struct {
 } Registro;
 
 typedef struct {
-    bool encontrado;
     int transferencias;
     int comparacoes;
     double tempo;
