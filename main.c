@@ -30,6 +30,15 @@ int main(int argc, char *argv[]) {
     switch(config.metodo){
         // Acesso sequencial indexado
         case 1:
+            Metricas metricas;
+            metricas.transferencias = 0;
+            metricas.comparacoes = 0;
+
+            Registro reg;
+            reg.chave = config.chave;
+
+            clock_t comeco, fim;
+            comeco = clock();
             int numPaginas = getNumPaginas(config.qnt_registros);
             int* vetorIndices = (int *) malloc(sizeof(int) * numPaginas);
             if (!vetorIndices) {
@@ -37,23 +46,11 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             criarIndice(arquivo, vetorIndices, config.qnt_registros);
+            fim = clock();
+            metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
-            Metricas metricas;
-            metricas.transferencias = 0;
-            metricas.comparacoes = 0;
-
-            Registro reg;
-            reg.chave = config.chave;
             bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, &metricas);
-            if (!encontrado)
-                printf("Registro não encontrado no arquivo %s\n", nomeArquivo);
-            else {
-                printf("Registro encontrado.\n");
-                printf("Métricas: \n");
-                printf("Comparações: %d\n", metricas.comparacoes);
-                // printar as métricas: tempo, qnt comparações, qnt transferências, etc.
-            }
-
+            printRegistro(reg, metricas, encontrado, nomeArquivo);
 
             free(vetorIndices);
             break;

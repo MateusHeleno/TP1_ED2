@@ -30,5 +30,6 @@ typedef struct{
 
 bool validaEntrada(int argc, char *argv[],Config *config);
 void criarArquivo(const char* caminho, int qnt_registros, int situacao);
+void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char* nomeArquivo);
 
 #endif

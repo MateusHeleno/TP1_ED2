@@ -1,5 +1,5 @@
-#include <stdio.h>   
-#include <stdlib.h>  
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
@@ -25,16 +25,16 @@ bool validaEntrada(int argc, char *argv[],Config *config){
     }
 
     config->chave = atoi(argv[4]);
-    
+
     if (argc == 6){
         if (strcmp(argv[5], "-P") == 0) {
-            config->p = 1; 
+            config->p = 1;
         } else {
             printf("O sexto argumento deve ser '-P' ou vazio \n");
             return false;
         }
     } else {
-        config->p = 0; 
+        config->p = 0;
     }
 
     return true;
@@ -83,4 +83,18 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
     }
 
     fclose(arquivo);
+}
+
+void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char* nomeArquivo) {
+    if (!encontrado)
+        printf("Registro não encontrado no arquivo %s\n", nomeArquivo);
+    else {
+        printf("Registro encontrado.\n");
+        //printf("  Chave: %d\n  Dado1: %ld\n  Dado2: %s\n  Dado3: %s\n", reg.chave, reg.dado1, reg.dado2, reg.dado3);
+        printf("=====================\n");
+        printf("Métricas: \n");
+        printf("  Comparações: %d\n", metricas.comparacoes);
+        printf("  Tempo percorrido: %.3lf segundo(s)\n", metricas.tempo);
+        // printar as métricas: tempo, qnt comparações, qnt transferências, etc.
+    }
 }
