@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     Config config;
     if(!validaEntrada(argc,argv, &config))
         return 1;
-
+    
     // nomenclatura dos arquivos: arquivos/bin_{qnt-registros}_{situacao}
     char nomeArquivo[64];
     sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", config.qnt_registros, config.situacao);

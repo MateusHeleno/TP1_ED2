@@ -8,7 +8,7 @@
 #include "auxiliares.h"
 
 #define ITENS_PAGINA 8
-#define NUM_PAGINA 50
+#define NUM_MOLDURA 50
 
 int getNumPaginas(int totalRegistros);
 void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros);
