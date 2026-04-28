@@ -38,13 +38,19 @@ int main(int argc, char *argv[]) {
             }
             criarIndice(arquivo, vetorIndices, config.qnt_registros);
 
+            Metricas metricas;
+            metricas.transferencias = 0;
+            metricas.comparacoes = 0;
+
             Registro reg;
             reg.chave = config.chave;
-            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas);
+            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, &metricas);
             if (!encontrado)
                 printf("Registro não encontrado no arquivo %s\n", nomeArquivo);
             else {
                 printf("Registro encontrado.\n");
+                printf("Métricas: \n");
+                printf("Comparações: %d\n", metricas.comparacoes);
                 // printar as métricas: tempo, qnt comparações, qnt transferências, etc.
             }
 

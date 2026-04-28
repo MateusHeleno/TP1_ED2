@@ -12,6 +12,6 @@
 
 int getNumPaginas(int totalRegistros);
 void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros);
-bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int numPaginas);
+bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int numPaginas, Metricas *metricas);
 
 #endif

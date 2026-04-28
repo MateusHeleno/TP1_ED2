@@ -31,7 +31,7 @@ int getNumPaginas(int totalRegistros) {
     return numPaginas;
 }
 
-bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int numPaginas) {
+bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int numPaginas, Metricas *metricas) {
     Registro pagina[ITENS_PAGINA];
     int i = 0, qntItens;
     long deslocamento;
@@ -54,6 +54,7 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int nu
     fread(&pagina, sizeof(Registro), qntItens, arq);
 
     for (i = 0; i < qntItens; i++) {
+        metricas->comparacoes++;
         if (reg->chave < pagina[i].chave)
             return false;
 
