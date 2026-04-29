@@ -29,12 +29,13 @@ void destroiMoldura(Moldura *moldura){
 }
 
 int buscarMoldura(Moldura *moldura, int numPagina) {
-    for (int i = 0; i < NUM_MOLDURA; i++) {
-        if (moldura[i].numPagina == numPagina)
-            return i; // conferir se ja tenho a pagina corretas nas minha molduras
-
-    }
-    return -1;
+    // for (int i = 0; i < NUM_MOLDURA; i++) {
+    //     if (moldura[i].numPagina == numPagina)
+    //         return i; // conferir se ja tenho a pagina corretas nas minha molduras
+    // }
+    // return -1;
+    
+    return buscaBinaria(moldura,NUM_MOLDURA,numPagina);
 }
 
 int escolherVitima(Moldura *moldura,bool *vazia) {
@@ -65,7 +66,6 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
         return pagina; // se eu ja tiver retorno a pagina
     }
 
-    //metricas->acessosDisco++;
     bool vazia;
     pagina = escolherVitima(moldura,&vazia);
 
@@ -116,14 +116,6 @@ void criarIndice(FILE *arq, int *vetorIndice, Config* config) {
         if (fread(&chave, sizeof(int), 1, arq) == 1)
             vetorIndice[i] = chave;
 
-
-        // no caso eu aproveitaria o fread de cima e preenchrias as primeiras moldura
-        // ja que ja estaria acessando o arquivo
-        // se meus intens de pagina e moldura fossem dinamico
-        // if (i < NUM_MOLDURA) {
-        //     fseek(arq, deslocamento, SEEK_SET);  // volta pro início da página
-        //     carregarPagina(moldura, arq, i, config, totalPaginas, NULL);
-        // }
     }
 }
 
@@ -162,56 +154,126 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
             i++;
         } // achar a posicao
 
+        if (i == 0) // conferir se é 0
+            return false;
+
         int numPaginaAlvo = i - 1; // pa vai ate a chave maior
         paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
                                          totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
     }
 
-    return buscaBinaria(moldura, paginaAtual, reg, metricas, config);
+    return buscaBinariaGeral(moldura, paginaAtual, reg,metricas,*config);
 }
 
-bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config *config) {
+// bool buscaBinariaGeral(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config *config) {
+//     int esq = 0;
+//     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
+
+
+//     // busca ascedente
+//     if (config->situacao == 1) {
+//         while (esq <= dir) {
+//             int meio = (esq + dir) / 2; // pega o meio
+//             metricas->comparacoes++;
+
+//             if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
+//                 *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
+//                 return true;
+//             }
+
+//             if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
+//                 dir = meio - 1;
+//             else
+//                 esq = meio + 1;
+//         }
+//     }
+
+//     // busca descente
+//     else if (config->situacao == 2) {
+//         while (esq <= dir) {
+//             int meio = (esq + dir) / 2; // pega o meio
+//             metricas->comparacoes++;
+
+//             if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
+//                 *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
+//                 return true;
+//             }
+
+//             if (reg->chave > moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
+//                 dir = meio - 1;
+//             else
+//                 esq = meio + 1;
+//         }
+//     }
+
+//     return false;
+// }
+
+bool buscaBinariaGeral(Moldura *moldura, int paginaAtual, Registro *reg,Metricas *metricas,Config config) {
     int esq = 0;
     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
 
+    while (esq <= dir) {
 
-    // busca ascedente
-    if (config->situacao == 1) {
-        while (esq <= dir) {
-            int meio = (esq + dir) / 2; // pega o meio
-            metricas->comparacoes++;
+        int meio = esq + (dir - esq) / 2; // pega o meio
+        
+        int chaveMeio = moldura[paginaAtual].itens[meio].chave;
+        
+        metricas->comparacoes++;
 
-            if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
-                *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
-                return true;
-            }
-
-            if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
-                dir = meio - 1;
-            else
-                esq = meio + 1;
+        if (chaveMeio ==  reg->chave) {
+            *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
+            return true;
         }
-    }
 
-    // busca descente
-    else if (config->situacao == 2) {
-        while (esq <= dir) {
-            int meio = (esq + dir) / 2; // pega o meio
-            metricas->comparacoes++;
+        
+        bool irParaEsquerda;
+        if (config.situacao == 1) {
+            // busca ascedente, eu vou pra esquerda se for menor
+            irParaEsquerda = (reg->chave < chaveMeio);
+        } else if (config.situacao == 2){
+            // busca ascedente, eu vou pra esquerda se for menor
+            irParaEsquerda = (reg->chave > chaveMeio);
+        }
+        else
+            return false;
 
-            if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
-                *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
-                return true;
-            }
 
-            if (reg->chave > moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
-                dir = meio - 1;
-            else
-                esq = meio + 1;
+        if (irParaEsquerda) {
+            dir = meio - 1;
+        }
+
+        else {
+            esq = meio + 1;
         }
     }
 
     return false;
+}
+
+int buscaBinaria(Moldura *moldura, int tamanho, int alvo) {
+    int esq = 0;
+    int dir = tamanho - 1;
+
+    while (esq <= dir) {
+        
+        int meio = esq + (dir - esq) / 2; // pega o meio
+
+        
+        if (moldura[meio].numPagina == alvo) { // verifica se é ele
+            return meio;
+        }
+
+        if (moldura[meio].numPagina < alvo) {
+            esq = meio + 1; // desloca pra dir
+        } 
+        else {
+            dir = meio - 1; // desloca pra esq
+        }
+    }
+
+    // Elemento não está presente
+    return -1;
 }
 
 int getNumItensPagina(Config* config) {
