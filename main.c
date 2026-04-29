@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
     sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", config.qnt_registros, config.situacao);
 
     FILE* arquivo = fopen(nomeArquivo, "rb");
-    if (!arquivo) {
-        criarArquivo(nomeArquivo, config.qnt_registros, config.situacao);
+    if (!arquivo) { // se ja existo puo, se nao crio 
+        criarArquivo(nomeArquivo, config.qnt_registros, config.situacao); 
         return 0;
     }
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
             fim = clock();
             metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
-            printRegistro(reg, metricas, encontrado, nomeArquivo);
+            printRegistro(reg, metricas, encontrado, nomeArquivo,config);
 
             destroiVetor(vetorIndices);
             break;

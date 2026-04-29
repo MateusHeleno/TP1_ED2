@@ -127,6 +127,7 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
     int i = 0;
     int paginaAtual;
 
+    // busca ascedente
     if (config->situacao == 1) {
         while (i < totalPaginas && vetorIndice[i] <= reg->chave) {
             metricas->comparacoes++;
@@ -140,6 +141,8 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
         paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
                                          totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
     }
+    
+    // busca descendente
     else if (config->situacao == 2) {
        while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
             metricas->comparacoes++;
@@ -158,6 +161,8 @@ bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *me
     int esq = 0;
     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
 
+
+    // busca ascedente
     if (config->situacao == 1) {
         while (esq <= dir) {
             int meio = (esq + dir) / 2; // pega o meio
@@ -175,6 +180,7 @@ bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *me
         }
     }
 
+    // busca descente 
     else if (config->situacao == 2) {
         while (esq <= dir) {
             int meio = (esq + dir) / 2; // pega o meio
