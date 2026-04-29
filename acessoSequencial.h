@@ -19,7 +19,7 @@ typedef struct {
 
 
 void inicializaMoldura(Moldura *moldura);
-int buscarMoldura(Moldura *moldura, int numPagina);
+int buscarMoldura(Moldura *moldura, int numPagina, Metricas *metricas);
 int escolherVitima(Moldura *moldura,bool *vazia);
 int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
                            int totalPaginas, Config *config, Metricas *metricas);
@@ -27,7 +27,7 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
 void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros);
 int getNumPaginas(int totalRegistros);
 bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas,Moldura *moldura, Config *config,Metricas *metricas);
-bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas);
+bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config *config);
 
 
 

@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     Config config;
     if(!validaEntrada(argc,argv, &config))
         return 1;
-    
+
     // nomenclatura dos arquivos: arquivos/bin_{qnt-registros}_{situacao}
     char nomeArquivo[64];
     sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", config.qnt_registros, config.situacao);
@@ -43,18 +43,17 @@ int main(int argc, char *argv[]) {
             int *vetorIndices = criaVetor(numPaginas);
 
             criarIndice(arquivo, vetorIndices, config.qnt_registros);
-            
-            fim = clock();
-            metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
             Moldura moldura[NUM_MOLDURA];
             inicializaMoldura(moldura);
-            
-            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas,moldura,&config, &metricas);
+
+            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, moldura, &config, &metricas);
+            fim = clock();
+            metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
+
             printRegistro(reg, metricas, encontrado, nomeArquivo);
 
             destroiVetor(vetorIndices);
-
             break;
         }
 

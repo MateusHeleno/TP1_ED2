@@ -16,12 +16,13 @@ void inicializaMoldura(Moldura *moldura) {
     }
 }
 
-int buscarMoldura(Moldura *moldura, int numPagina) {  
+int buscarMoldura(Moldura *moldura, int numPagina, Metricas *metricas) {
     for (int i = 0; i < NUM_MOLDURA; i++) {
         if (moldura[i].numPagina == numPagina)
             return i; // conferir se ja tenho a pagina corretas nas minha molduras
+
     }
-    return -1;  
+    return -1;
 }
 
 int escolherVitima(Moldura *moldura,bool *vazia) {
@@ -33,7 +34,7 @@ int escolherVitima(Moldura *moldura,bool *vazia) {
     }
 
     *vazia = false; // se tiver ocupado
-    int vitima = 0;  
+    int vitima = 0;
     for (int i = 1; i < NUM_MOLDURA; i++) {
         if (moldura[i].frequencia < moldura[vitima].frequencia)
             vitima = i; // retorna o indice da casa que perde na frequencia, mas varrendo todas
@@ -44,7 +45,7 @@ int escolherVitima(Moldura *moldura,bool *vazia) {
 int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
                            int totalPaginas, Config *config, Metricas *metricas) {
 
-    int pagina = buscarMoldura(moldura, numPagina); // confiro se ja tenho
+    int pagina = buscarMoldura(moldura, numPagina, metricas); // confiro se ja tenho
 
     if (pagina != -1) {
         moldura[pagina].frequencia++;
@@ -55,11 +56,10 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
     bool vazia;
     pagina = escolherVitima(moldura,&vazia);
 
-    if (vazia) {
+    if (vazia)
         moldura[pagina].frequencia = 1; // ate preencher todas, inicializa freqeuencia em 1
-    } 
-    else 
-    {
+
+    else {
         int somaFreq = 0; // so entra aqui se tiver tudo cheio
         for (int i = 0; i < NUM_MOLDURA; i++) {
             if (i != pagina)
@@ -68,10 +68,10 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
         moldura[pagina].frequencia = somaFreq / (NUM_MOLDURA - 1); // incializa frequencia, com a media
     }
 
-    // tratando ultima pagina 
+    // tratando ultima pagina
     int qntItens;
     if (numPagina == totalPaginas - 1) { // queremos a ultima pagina, e é um vetor ai tem q retirar um
-        int resto = config->qnt_registros % ITENS_PAGINA; 
+        int resto = config->qnt_registros % ITENS_PAGINA;
         if(resto == 0)
             qntItens = ITENS_PAGINA; // se a pagina tiver completa
         else
@@ -123,55 +123,73 @@ int getNumPaginas(int totalRegistros) {
     return totalPaginas;
 }
 
-bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas,Moldura *moldura, Config *config,Metricas *metricas) {
+bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas, Moldura *moldura, Config *config, Metricas *metricas) {
     int i = 0;
-    
-    while (i < totalPaginas && vetorIndice[i] <= reg->chave) // achar a posicao
-        i++;
+    int paginaAtual;
 
-    if (i == 0) // conferir se é 0
-        return false;
+    if (config->situacao == 1) {
+        while (i < totalPaginas && vetorIndice[i] <= reg->chave) {
+            metricas->comparacoes++;
+            i++;
+        } // achar a posicao
 
-    int numPaginaAlvo = i-1; // pa vai ate a chave maior
+        if (i == 0) // conferir se é 0
+            return false;
 
-    int paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
-                                    totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
-    
-    int qntItens = moldura[paginaAtual].qntItens; 
+        int numPaginaAlvo = i - 1; // pa vai ate a chave maior
+        paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
+                                         totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
+    }
+    else if (config->situacao == 2) {
+       while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
+            metricas->comparacoes++;
+            i++;
+        } // achar a posicao
 
-    // metodo sequencial 
-        // for (i = 0; i < qntItens; i++) {
-        //     metricas->comparacoes++;
-        //     if (reg->chave < moldura[paginaAtual].itens[i].chave) // se for menor nao tem
-        //         return false;
-        //     if (moldura[paginaAtual].itens[i].chave == reg->chave) {
-        //         *reg = moldura[paginaAtual].itens[i];
-        //         return true;
-        //     }
-        // }
+        int numPaginaAlvo = i - 1; // pa vai ate a chave maior
+        paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
+                                         totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
+    }
 
-
-
-    return buscaBinaria(moldura,paginaAtual,reg,metricas);
+    return buscaBinaria(moldura, paginaAtual, reg, metricas, config);
 }
 
-bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas) {
+bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config *config) {
     int esq = 0;
     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
 
-    while (esq <= dir) {
-        int meio = (esq + dir) / 2; // pega o meio
-        metricas->comparacoes++;
+    if (config->situacao == 1) {
+        while (esq <= dir) {
+            int meio = (esq + dir) / 2; // pega o meio
+            metricas->comparacoes++;
 
-        if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
-            *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
-            return true;
+            if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
+                *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
+                return true;
+            }
+
+            if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
+                dir = meio - 1;
+            else
+                esq = meio + 1;
         }
+    }
 
-        if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
-            dir = meio - 1; 
-        else
-            esq = meio + 1;
+    else if (config->situacao == 2) {
+        while (esq <= dir) {
+            int meio = (esq + dir) / 2; // pega o meio
+            metricas->comparacoes++;
+
+            if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
+                *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
+                return true;
+            }
+
+            if (reg->chave > moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
+                dir = meio - 1;
+            else
+                esq = meio + 1;
+        }
     }
 
     return false;
