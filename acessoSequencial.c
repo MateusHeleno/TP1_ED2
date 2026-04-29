@@ -120,8 +120,6 @@ void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros) {
     }
 }
 
-
-
 int getNumPaginas(int totalRegistros) {
     int totalPaginas = totalRegistros / ITENS_PAGINA;
 
@@ -146,14 +144,39 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
     
     int qntItens = moldura[paginaAtual].qntItens; 
 
-    for (i = 0; i < qntItens; i++) {
+    // metodo sequencial 
+        // for (i = 0; i < qntItens; i++) {
+        //     metricas->comparacoes++;
+        //     if (reg->chave < moldura[paginaAtual].itens[i].chave) // se for menor nao tem
+        //         return false;
+        //     if (moldura[paginaAtual].itens[i].chave == reg->chave) {
+        //         *reg = moldura[paginaAtual].itens[i];
+        //         return true;
+        //     }
+        // }
+
+
+
+    return buscaBinaria(moldura,paginaAtual,reg,metricas);
+}
+
+bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas) {
+    int esq = 0;
+    int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
+
+    while (esq <= dir) {
+        int meio = (esq + dir) / 2; // pega o meio
         metricas->comparacoes++;
-        if (reg->chave < moldura[paginaAtual].itens[i].chave) // se for menor nao tem
-            return false;
-        if (moldura[paginaAtual].itens[i].chave == reg->chave) {
-            *reg = moldura[paginaAtual].itens[i];
+
+        if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
+            *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
             return true;
         }
+
+        if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
+            dir = meio - 1; 
+        else
+            esq = meio + 1;
     }
 
     return false;
