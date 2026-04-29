@@ -29,31 +29,34 @@ int main(int argc, char *argv[]) {
 
     switch(config.metodo){
         // Acesso sequencial indexado
-        case 1:
+        case 1: {
             Metricas metricas;
-            metricas.transferencias = 0;
-            metricas.comparacoes = 0;
+            inicializaMetricas(&metricas);
 
             Registro reg;
             reg.chave = config.chave;
 
             clock_t comeco, fim;
             comeco = clock();
+
             int numPaginas = getNumPaginas(config.qnt_registros);
-            int* vetorIndices = (int *) malloc(sizeof(int) * numPaginas);
-            if (!vetorIndices) {
-                printf("Erro ao alocar memória para o vetor de índices.\n");
-                return 1;
-            }
+            int *vetorIndices = criaVetor(numPaginas);
+
             criarIndice(arquivo, vetorIndices, config.qnt_registros);
+            
             fim = clock();
             metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
-            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, &metricas);
+            Moldura moldura[NUM_MOLDURA];
+            inicializaMoldura(moldura);
+            
+            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas,moldura,&config, &metricas);
             printRegistro(reg, metricas, encontrado, nomeArquivo);
 
-            free(vetorIndices);
+            destroiVetor(vetorIndices);
+
             break;
+        }
 
         // Árvore Binária de Pesquisa
         case 2:

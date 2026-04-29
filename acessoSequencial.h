@@ -10,6 +10,13 @@
 #define ITENS_PAGINA 8
 #define NUM_MOLDURA 50
 
+typedef struct {
+    Registro itens[ITENS_PAGINA];
+    int numPagina;      // -1 = vazia
+    int frequencia;     // pra contar acesso, e saber quem retirar
+    int qntItens;       // para facilitar manueseio da ultima
+} Moldura;
+
 
 void inicializaMoldura(Moldura *moldura);
 int buscarMoldura(Moldura *moldura, int numPagina);
@@ -19,7 +26,7 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
 
 void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros);
 int getNumPaginas(int totalRegistros);
-bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas,Moldura *moldura, Config *config,Metricas *metricas)
+bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas,Moldura *moldura, Config *config,Metricas *metricas);
 bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas);
 
 

@@ -7,12 +7,6 @@
 #include "acessoSequencial.h"
 #include "auxiliares.h"
 
-typedef struct {
-    Registro itens[ITENS_PAGINA];
-    int numPagina;      // -1 = vazia
-    int frequencia;     // pra contar acesso, e saber quem retirar
-    int qntItens;       // para facilitar manueseio da ultima
-} Moldura;
 
 void inicializaMoldura(Moldura *moldura) {
     for (int i = 0; i < NUM_MOLDURA; i++) {
@@ -113,6 +107,7 @@ void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros) {
 
         // no caso eu aproveitaria o fread de cima e preenchrias as primeiras moldura
         // ja que ja estaria acessando o arquivo
+        // se meus intens de pagina e moldura fossem dinamico
         // if (i < NUM_MOLDURA) {
         //     fseek(arq, deslocamento, SEEK_SET);  // volta pro início da página
         //     carregarPagina(moldura, arq, i, config, totalPaginas, NULL);
@@ -140,7 +135,7 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
     int numPaginaAlvo = i-1; // pa vai ate a chave maior
 
     int paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
-                                    config, totalPaginas, metricas); // coloca o indice do vet da pagina que queremos
+                                    totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
     
     int qntItens = moldura[paginaAtual].qntItens; 
 

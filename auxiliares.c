@@ -98,3 +98,22 @@ void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char*
         // printar as métricas: tempo, qnt comparações, qnt transferências, etc.
     }
 }
+
+int* criaVetor(int tamanho) {
+    int *vetor = (int *) malloc(sizeof(int) * tamanho);
+    if (!vetor) {
+        printf("Erro ao alocar memória para o vetor.\n");
+        exit(1);
+    }
+    return vetor;
+}
+
+void destroiVetor(int *vet){
+    free(vet);
+}
+
+void inicializaMetricas(Metricas *metricas){
+    metricas->transferencias = 0;
+    metricas->comparacoes = 0;
+    metricas->tempo = 0.0;
+}
