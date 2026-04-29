@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
     sprintf(nomeArquivo, "arquivos/bin_%d_situacao%d.bin", config.qnt_registros, config.situacao);
 
     FILE* arquivo = fopen(nomeArquivo, "rb");
-    if (!arquivo) { // se ja existo puo, se nao crio 
-        criarArquivo(nomeArquivo, config.qnt_registros, config.situacao); 
+    if (!arquivo) { // se ja existo puo, se nao crio
+        criarArquivo(nomeArquivo, config.qnt_registros, config.situacao);
         return 0;
     }
 
@@ -39,21 +39,22 @@ int main(int argc, char *argv[]) {
             clock_t comeco, fim;
             comeco = clock();
 
-            int numPaginas = getNumPaginas(config.qnt_registros);
+            int numPaginas = getNumPaginas(&config);
             int *vetorIndices = criaVetor(numPaginas);
 
-            criarIndice(arquivo, vetorIndices, config.qnt_registros);
+            criarIndice(arquivo, vetorIndices, &config);
 
-            Moldura moldura[NUM_MOLDURA];
-            inicializaMoldura(moldura);
-
+            Moldura *moldura = inicializaMoldura();
             bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, moldura, &config, &metricas);
+
             fim = clock();
             metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
             printRegistro(reg, metricas, encontrado, nomeArquivo,config);
 
             destroiVetor(vetorIndices);
+            destroiMoldura(moldura);
+
             break;
         }
 

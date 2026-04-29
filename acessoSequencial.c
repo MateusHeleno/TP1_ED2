@@ -8,15 +8,27 @@
 #include "auxiliares.h"
 
 
-void inicializaMoldura(Moldura *moldura) {
+Moldura* inicializaMoldura() {
+    Moldura *moldura = (Moldura *) malloc(sizeof(Moldura) * NUM_MOLDURA);
+
+    if (!moldura){
+        printf("Erro na alocação de memórias");
+        exit(1);
+    }
+
     for (int i = 0; i < NUM_MOLDURA; i++) {
         moldura[i].numPagina = -1;
         moldura[i].frequencia = 0;
         moldura[i].qntItens = -1;
     }
+    return moldura;
 }
 
-int buscarMoldura(Moldura *moldura, int numPagina, Metricas *metricas) {
+void destroiMoldura(Moldura *moldura){
+    free(moldura);
+}
+
+int buscarMoldura(Moldura *moldura, int numPagina) {
     for (int i = 0; i < NUM_MOLDURA; i++) {
         if (moldura[i].numPagina == numPagina)
             return i; // conferir se ja tenho a pagina corretas nas minha molduras
@@ -45,7 +57,8 @@ int escolherVitima(Moldura *moldura,bool *vazia) {
 int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
                            int totalPaginas, Config *config, Metricas *metricas) {
 
-    int pagina = buscarMoldura(moldura, numPagina, metricas); // confiro se ja tenho
+    int pagina = buscarMoldura(moldura, numPagina); // confiro se ja tenho
+    int qntItensPag = getNumItensPagina(config);
 
     if (pagina != -1) {
         moldura[pagina].frequencia++;
@@ -71,27 +84,26 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
     // tratando ultima pagina
     int qntItens;
     if (numPagina == totalPaginas - 1) { // queremos a ultima pagina, e é um vetor ai tem q retirar um
-        int resto = config->qnt_registros % ITENS_PAGINA;
+        int resto = config->qnt_registros % qntItensPag;
         if(resto == 0)
-            qntItens = ITENS_PAGINA; // se a pagina tiver completa
+            qntItens = qntItensPag; // se a pagina tiver completa
         else
             qntItens = resto; // se nao tiver o total
     } else {
-        qntItens = ITENS_PAGINA; // se nao for a ultima pagina
+        qntItens = qntItensPag; // se nao for a ultima pagina
     }
 
-    long deslocamento = (long)(numPagina * ITENS_PAGINA * sizeof(Registro));
+    long deslocamento = (long)(numPagina * qntItensPag * sizeof(Registro));
     fseek(arq, deslocamento, SEEK_SET);
     fread(moldura[pagina].itens, sizeof(Registro), qntItens, arq);
-
 
     moldura[pagina].qntItens = qntItens;
     moldura[pagina].numPagina = numPagina;
     return pagina;
 }
 
-void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros) {
-    int numPaginas = getNumPaginas(totalRegistros); // pega o total de paginas do arquivo
+void criarIndice(FILE *arq, int *vetorIndice, Config* config) {
+    int numPaginas = getNumPaginas(config); // pega o total de paginas do arquivo
 
     int chave;
     for (int i = 0; i < numPaginas; i++) {
@@ -115,10 +127,11 @@ void criarIndice(FILE *arq, int *vetorIndice, int totalRegistros) {
     }
 }
 
-int getNumPaginas(int totalRegistros) {
-    int totalPaginas = totalRegistros / ITENS_PAGINA;
+int getNumPaginas(Config* config) {
+    int qntItensPag = getNumItensPagina(config);
+    int totalPaginas = config->qnt_registros / qntItensPag;
 
-    if (totalRegistros % ITENS_PAGINA != 0)
+    if (config->qnt_registros % qntItensPag != 0)
         totalPaginas++;
     return totalPaginas;
 }
@@ -141,7 +154,7 @@ bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int to
         paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
                                          totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
     }
-    
+
     // busca descendente
     else if (config->situacao == 2) {
        while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
@@ -180,7 +193,7 @@ bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *me
         }
     }
 
-    // busca descente 
+    // busca descente
     else if (config->situacao == 2) {
         while (esq <= dir) {
             int meio = (esq + dir) / 2; // pega o meio
@@ -199,4 +212,15 @@ bool buscaBinaria(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *me
     }
 
     return false;
+}
+
+int getNumItensPagina(Config* config) {
+    if (config->qnt_registros == 100)
+        return 16;
+    else if (config->qnt_registros == 1000)
+        return 32;
+    else if (config->qnt_registros == 10000)
+        return 128;
+    else
+        return 256;
 }
