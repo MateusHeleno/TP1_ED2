@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
             int numPaginas = getNumPaginas(&config);
             int *vetorIndices = criaVetor(numPaginas);
 
-            criarIndice(arquivo, vetorIndices, &config);
+            criarIndice(arquivo, vetorIndices, &config, &metricas);
 
             Moldura *moldura = inicializaMoldura();
             bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, moldura, &config, &metricas);
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
             fim = clock();
             metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
 
-            printRegistro(reg, metricas, encontrado, nomeArquivo,config);
+            printRegistro(reg, metricas, encontrado, nomeArquivo, config);
 
             destroiVetor(vetorIndices);
             destroiMoldura(moldura);

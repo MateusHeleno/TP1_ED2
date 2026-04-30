@@ -85,19 +85,18 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
     fclose(arquivo);
 }
 
-void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char* nomeArquivo,Config config) {
+void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char* nomeArquivo, Config config) {
     if (!encontrado)
         printf("Registro não encontrado no arquivo %s\n", nomeArquivo);
     else {
         printf("Registro encontrado.\n");
-        if(config.p)
+        if (config.p)
             printf("  Chave: %d\n  Dado1: %ld\n  Dado2: %s\n  Dado3: %s\n", reg.chave, reg.dado1, reg.dado2, reg.dado3);
         printf("=====================\n");
         printf("Métricas: \n");
         printf("  Comparações: %d\n", metricas.comparacoes);
         printf("  Transferencias: %d\n", metricas.transferencias);
         printf("  Tempo percorrido: %.3lf segundo(s)\n", metricas.tempo);
-        // printar as métricas: tempo, qnt comparações, qnt transferências, etc.
     }
 }
 

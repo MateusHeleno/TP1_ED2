@@ -7,7 +7,6 @@
 #include "acessoSequencial.h"
 #include "auxiliares.h"
 
-
 Moldura* inicializaMoldura() {
     Moldura *moldura = (Moldura *) malloc(sizeof(Moldura) * NUM_MOLDURA);
 
@@ -34,8 +33,8 @@ int buscarMoldura(Moldura *moldura, int numPagina) {
     //         return i; // conferir se ja tenho a pagina corretas nas minha molduras
     // }
     // return -1;
-    
-    return buscaBinaria(moldura,NUM_MOLDURA,numPagina);
+
+    return buscaBinariaMoldura(moldura,NUM_MOLDURA,numPagina);
 }
 
 int escolherVitima(Moldura *moldura,bool *vazia) {
@@ -95,6 +94,7 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
 
     long deslocamento = (long)(numPagina * qntItensPag * sizeof(Registro));
     fseek(arq, deslocamento, SEEK_SET);
+    metricas->transferencias++;
     fread(moldura[pagina].itens, sizeof(Registro), qntItens, arq);
 
     moldura[pagina].qntItens = qntItens;
@@ -102,20 +102,21 @@ int carregarPagina(Moldura *moldura, FILE *arq, int numPagina,
     return pagina;
 }
 
-void criarIndice(FILE *arq, int *vetorIndice, Config* config) {
+void criarIndice(FILE *arq, int *vetorIndice, Config* config, Metricas *metricas) {
     int numPaginas = getNumPaginas(config); // pega o total de paginas do arquivo
+    int numItensPag = getNumItensPagina(config);
 
     int chave;
     for (int i = 0; i < numPaginas; i++) {
 
-        long deslocamento = (long) (i * ITENS_PAGINA * sizeof(Registro)); // pula de pagina em pagina
+        long deslocamento = (long) (i * numItensPag * sizeof(Registro)); // pula de pagina em pagina
 
         fseek(arq, deslocamento, SEEK_SET);
 
         // Lê apenas o campo 'chave' do primeiro registro da página
+        metricas->transferencias++;
         if (fread(&chave, sizeof(int), 1, arq) == 1)
             vetorIndice[i] = chave;
-
     }
 }
 
@@ -129,96 +130,56 @@ int getNumPaginas(Config* config) {
 }
 
 bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas, Moldura *moldura, Config *config, Metricas *metricas) {
-    int i = 0;
     int paginaAtual;
 
     // busca ascedente
-    if (config->situacao == 1) {
-        while (i < totalPaginas && vetorIndice[i] <= reg->chave) {
-            metricas->comparacoes++;
-            i++;
-        } // achar a posicao
+    // if (config->situacao == 1) {
 
-        if (i == 0) // conferir se é 0
-            return false;
 
-        int numPaginaAlvo = i - 1; // pa vai ate a chave maior
-        paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
-                                         totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
+    //     while (i < totalPaginas && vetorIndice[i] <= reg->chave) {
+    //         metricas->comparacoes++;
+    //         i++;
+    //     } // achar a posicao
+
+    //     if (i == 0) // conferir se é 0
+    //         return false;
+
+    //     int numPaginaAlvo = i - 1; // pa vai ate a chave maior
+    //     paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
+    //                                      totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
+    // }
+
+    // // busca descendente
+    // else if (config->situacao == 2) {
+    //    while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
+    //         metricas->comparacoes++;
+    //         i++;
+    //     } // achar a posicao
+
+    //     if (i == 0) // conferir se é 0
+    //         return false;
+
+    //     int numPaginaAlvo = i - 1; // pa vai ate a chave maior
+
+    int numPaginaAlvo = buscaBinariaIndices(vetorIndice, config, metricas, reg);
+    if (numPaginaAlvo == -1) {
+        printf("Página alvo não encontrada.\n");
+        return false;
     }
-
-    // busca descendente
-    else if (config->situacao == 2) {
-       while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
-            metricas->comparacoes++;
-            i++;
-        } // achar a posicao
-
-        if (i == 0) // conferir se é 0
-            return false;
-
-        int numPaginaAlvo = i - 1; // pa vai ate a chave maior
-        paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
+    paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
                                          totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
-    }
 
-    return buscaBinariaGeral(moldura, paginaAtual, reg,metricas,*config);
+    return buscaBinariaPagina(moldura, paginaAtual, reg,metricas,*config);
 }
 
-// bool buscaBinariaGeral(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config *config) {
-//     int esq = 0;
-//     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
-
-
-//     // busca ascedente
-//     if (config->situacao == 1) {
-//         while (esq <= dir) {
-//             int meio = (esq + dir) / 2; // pega o meio
-//             metricas->comparacoes++;
-
-//             if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
-//                 *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
-//                 return true;
-//             }
-
-//             if (reg->chave < moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
-//                 dir = meio - 1;
-//             else
-//                 esq = meio + 1;
-//         }
-//     }
-
-//     // busca descente
-//     else if (config->situacao == 2) {
-//         while (esq <= dir) {
-//             int meio = (esq + dir) / 2; // pega o meio
-//             metricas->comparacoes++;
-
-//             if (moldura[paginaAtual].itens[meio].chave == reg->chave) {
-//                 *reg = moldura[paginaAtual].itens[meio]; // se for igual encontrei
-//                 return true;
-//             }
-
-//             if (reg->chave > moldura[paginaAtual].itens[meio].chave) // decide qual posicao deslocar
-//                 dir = meio - 1;
-//             else
-//                 esq = meio + 1;
-//         }
-//     }
-
-//     return false;
-// }
-
-bool buscaBinariaGeral(Moldura *moldura, int paginaAtual, Registro *reg,Metricas *metricas,Config config) {
+bool buscaBinariaPagina(Moldura *moldura, int paginaAtual, Registro *reg, Metricas *metricas, Config config) {
     int esq = 0;
     int dir = moldura[paginaAtual].qntItens - 1; // pq é um vetor
 
     while (esq <= dir) {
-
         int meio = esq + (dir - esq) / 2; // pega o meio
-        
         int chaveMeio = moldura[paginaAtual].itens[meio].chave;
-        
+
         metricas->comparacoes++;
 
         if (chaveMeio ==  reg->chave) {
@@ -226,54 +187,79 @@ bool buscaBinariaGeral(Moldura *moldura, int paginaAtual, Registro *reg,Metricas
             return true;
         }
 
-        
         bool irParaEsquerda;
-        if (config.situacao == 1) {
+        if (config.situacao == 1)
             // busca ascedente, eu vou pra esquerda se for menor
             irParaEsquerda = (reg->chave < chaveMeio);
-        } else if (config.situacao == 2){
+        else if (config.situacao == 2)
             // busca ascedente, eu vou pra esquerda se for menor
             irParaEsquerda = (reg->chave > chaveMeio);
-        }
+
         else
             return false;
 
-
-        if (irParaEsquerda) {
+        if (irParaEsquerda)
             dir = meio - 1;
-        }
 
-        else {
+        else
             esq = meio + 1;
-        }
     }
 
     return false;
 }
 
-int buscaBinaria(Moldura *moldura, int tamanho, int alvo) {
+int buscaBinariaMoldura(Moldura *moldura, int tamanho, int alvo) {
     int esq = 0;
     int dir = tamanho - 1;
 
     while (esq <= dir) {
-        
+
         int meio = esq + (dir - esq) / 2; // pega o meio
 
-        
-        if (moldura[meio].numPagina == alvo) { // verifica se é ele
+        if (moldura[meio].numPagina == alvo)  // verifica se é ele
             return meio;
-        }
 
-        if (moldura[meio].numPagina < alvo) {
+        if (moldura[meio].numPagina < alvo)
             esq = meio + 1; // desloca pra dir
-        } 
-        else {
+
+        else
             dir = meio - 1; // desloca pra esq
-        }
     }
 
     // Elemento não está presente
     return -1;
+}
+
+int buscaBinariaIndices(int *vetorIndice, Config *config, Metricas *metricas, Registro *registro) {
+    int tam = getNumPaginas(config);
+    int esq = 0;
+    int dir = tam - 1;
+
+    int pagAlvo = -1;
+
+    while (esq <= dir) {
+        int meio = esq + (dir - esq) / 2;
+        metricas->comparacoes++;
+
+        if (config->situacao == 1) {
+            if (vetorIndice[meio] <= registro->chave) {
+                pagAlvo = meio;
+                esq = meio + 1;
+            }
+            else
+                dir = meio - 1;
+        }
+        else if (config->situacao == 2) {
+            if (vetorIndice[meio] >= registro->chave) {
+                pagAlvo = meio;
+                esq = meio + 1;
+            }
+            else
+                dir = meio - 1;
+        }
+    }
+
+    return pagAlvo;
 }
 
 int getNumItensPagina(Config* config) {
