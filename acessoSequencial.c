@@ -132,35 +132,6 @@ int getNumPaginas(Config* config) {
 bool acessoSequencialIndexado(int *vetorIndice, FILE *arq, Registro *reg, int totalPaginas, Moldura *moldura, Config *config, Metricas *metricas) {
     int paginaAtual;
 
-    // busca ascedente
-    // if (config->situacao == 1) {
-
-
-    //     while (i < totalPaginas && vetorIndice[i] <= reg->chave) {
-    //         metricas->comparacoes++;
-    //         i++;
-    //     } // achar a posicao
-
-    //     if (i == 0) // conferir se é 0
-    //         return false;
-
-    //     int numPaginaAlvo = i - 1; // pa vai ate a chave maior
-    //     paginaAtual = carregarPagina(moldura, arq, numPaginaAlvo,
-    //                                      totalPaginas, config, metricas); // coloca o indice do vet da pagina que queremos
-    // }
-
-    // // busca descendente
-    // else if (config->situacao == 2) {
-    //    while (i < totalPaginas && vetorIndice[i] >= reg->chave) {
-    //         metricas->comparacoes++;
-    //         i++;
-    //     } // achar a posicao
-
-    //     if (i == 0) // conferir se é 0
-    //         return false;
-
-    //     int numPaginaAlvo = i - 1; // pa vai ate a chave maior
-
     int numPaginaAlvo = buscaBinariaIndices(vetorIndice, config, metricas, reg);
     if (numPaginaAlvo == -1) {
         printf("Página alvo não encontrada.\n");
