@@ -24,12 +24,19 @@ int main(int argc, char *argv[]) {
     FILE* arquivo = fopen(nomeArquivo, "rb");
     if (!arquivo) { // se ja existo puo, se nao crio
         criarArquivo(nomeArquivo, config.qnt_registros, config.situacao);
+        printf("A criação foi um sucesso, digite o comando novamente da pesquisa e terá o resultado\n");
         return 0;
     }
 
     switch(config.metodo){
         // Acesso sequencial indexado
         case 1: {
+
+            if(config.situacao == 3){
+                printf("Esse metodo nao aceita esse tipo de arquivo");
+                return 0;
+            }
+
             Metricas metricas;
             inicializaMetricas(&metricas);
 

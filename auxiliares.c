@@ -18,6 +18,20 @@ bool validaEntrada(int argc, char *argv[],Config *config){
     }
 
     config->qnt_registros = atoi(argv[2]);
+    bool aux;
+    for(int i = 100;i<=1000000; i=i*10){
+        if(config->qnt_registros % i == 0){
+            aux = true;
+            break;
+        }
+        aux = false;
+    }
+
+    if(!aux){
+        printf("Digite registros multiplos de 100 ate 1000000\n");
+        return false;
+    }
+
     config->situacao = atoi(argv[3]);
     if (config->situacao < 1 || config->situacao > 3) { // verifica se o valor recebido é válido
         printf("Situação deve ter os valores entre 1 e 3\n");
@@ -47,13 +61,15 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
         return;
     }
 
-    Registro reg;
-    // a funcão memset() preenche os primeiros n bytes de um bloco com algum valor
-    memset(reg.dado2, 'A', sizeof(reg.dado2) - 1); // preenche os primeiros 999 bytes com A e depois o último como \0
-    reg.dado2[sizeof(reg.dado2) - 1] = '\0';
 
-    memset(reg.dado3, 'B', sizeof(reg.dado3) - 1);
-    reg.dado3[sizeof(reg.dado3) - 1] = '\0';
+
+        Registro reg;
+        // a funcão memset() preenche os primeiros n bytes de um bloco com algum valor
+        // memset(reg.dado2, 'A', sizeof(reg.dado2) - 1); // preenche os primeiros 999 bytes com A e depois o último como \0
+        // reg.dado2[sizeof(reg.dado2) - 1] = '\0';
+
+        // memset(reg.dado3, 'B', sizeof(reg.dado3) - 1);
+        // reg.dado3[sizeof(reg.dado3) - 1] = '\0';
 
     switch (situacao) {
         // ordenação ascendente das chaves
@@ -61,6 +77,7 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
             for (int chave = 1; chave <= qnt_registros; chave++) {
                 reg.chave = chave;
                 reg.dado1 = (rand() % qnt_registros) + 1;
+                preencherDados(&reg);
                 fwrite(&reg, sizeof(Registro), 1, arquivo);
             }
             break;
@@ -69,7 +86,9 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
             for (int chave = qnt_registros; chave >= 1; chave--) {
                 reg.chave = chave;
                 reg.dado1 = (rand() % qnt_registros) + 1;
+                preencherDados(&reg);
                 fwrite(&reg, sizeof(Registro), 1, arquivo);
+
             }
             break;
         // ordenação aleatória
@@ -77,12 +96,29 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
             for (int i = 0; i < qnt_registros; i++) {
                 reg.chave = (rand() % qnt_registros) + 1;
                 reg.dado1 = (rand() % qnt_registros) + 1;
+                preencherDados(&reg);
                 fwrite(&reg, sizeof(Registro), 1, arquivo);
+
             }
             break;
     }
 
     fclose(arquivo);
+}
+
+void preencherDados(Registro *reg) {
+    // a funcão memset() preenche os primeiros n bytes de um bloco com algum valor
+    // preenche os primeiros 999 bytes com A e depois o último como \0
+
+    snprintf(reg->dado2, sizeof(reg->dado2), "chave:%d|", reg->chave);
+    int prefixo = strlen(reg->dado2);
+    memset(reg->dado2 + prefixo, 'A', sizeof(reg->dado2) - prefixo - 1);
+    reg->dado2[sizeof(reg->dado2) - 1] = '\0';
+
+    snprintf(reg->dado3, sizeof(reg->dado3), "chave:%d|", reg->chave);
+    prefixo = strlen(reg->dado3);
+    memset(reg->dado3 + prefixo, 'B', sizeof(reg->dado3) - prefixo - 1);
+    reg->dado3[sizeof(reg->dado3) - 1] = '\0';
 }
 
 void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char* nomeArquivo, Config config) {

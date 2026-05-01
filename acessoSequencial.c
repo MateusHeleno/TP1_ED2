@@ -28,13 +28,13 @@ void destroiMoldura(Moldura *moldura){
 }
 
 int buscarMoldura(Moldura *moldura, int numPagina) {
-    // for (int i = 0; i < NUM_MOLDURA; i++) {
-    //     if (moldura[i].numPagina == numPagina)
-    //         return i; // conferir se ja tenho a pagina corretas nas minha molduras
-    // }
-    // return -1;
+    for (int i = 0; i < NUM_MOLDURA; i++) {
+        if (moldura[i].numPagina == numPagina)
+            return i; // conferir se ja tenho a pagina corretas nas minha molduras
+    }
+    return -1;
 
-    return buscaBinariaMoldura(moldura,NUM_MOLDURA,numPagina);
+    //return buscaBinariaMoldura(moldura,NUM_MOLDURA,numPagina);
 }
 
 int escolherVitima(Moldura *moldura,bool *vazia) {
