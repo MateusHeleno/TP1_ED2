@@ -31,8 +31,7 @@ int main(int argc, char *argv[]) {
     switch(config.metodo){
         // Acesso sequencial indexado
         case 1: {
-
-            if(config.situacao == 3){
+            if (config.situacao == 3){
                 printf("Esse metodo nao aceita esse tipo de ordenação.\n");
                 return 0;
             }
@@ -67,7 +66,7 @@ int main(int argc, char *argv[]) {
 
         // Árvore Binária de Pesquisa
         case 2:
-            if (config.metodo != 3) {
+            if (config.situacao != 3) {
                 printf("Esse método não aceita esse tipo de ordenação.\n");
                 return 0;
             }
@@ -75,19 +74,18 @@ int main(int argc, char *argv[]) {
             Metricas metricas;
             inicializaMetricas(&metricas);
 
-            Registro reg;
-            reg.chave = config.chave;
+            // Registro reg;
+            // reg.chave = config.chave;
 
             char nomeArq[64];
             sprintf(nomeArq, "arvBin/bin_%dreg.bin", config.qnt_registros);
             FILE* arqArv = fopen(nomeArq, "rb");
             if (!arqArv) {
-                criarArvBinaria(&config, arquivo, nomeArq);
+                criarArvBinaria(&config, arquivo, nomeArq, &metricas);
                 printf("A criação foi um sucesso, digite o comando novamente da pesquisa e terá o resultado\n");
                 return 0;
             }
 
-            
 
             break;
 

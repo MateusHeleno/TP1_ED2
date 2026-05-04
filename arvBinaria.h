@@ -14,6 +14,8 @@ typedef struct {
     // -1 em algum dos campos acima significa que o nodo não possui filhos
 } No;
 
-void criarArvBinaria(Config* config, FILE* arqOriginal, const char *arqArvBin);
+void criarArvBinaria(Config* config, FILE* arqOriginal, const char *arqArvBin, Metricas *metricas);
+void insereNo(FILE* arvBin, Registro reg, Metricas *metricas);
+void inicializaNo(No* no, Registro reg);
 
 #endif
