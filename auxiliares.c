@@ -61,16 +61,7 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
         return;
     }
 
-
-
-        Registro reg;
-        // a funcão memset() preenche os primeiros n bytes de um bloco com algum valor
-        // memset(reg.dado2, 'A', sizeof(reg.dado2) - 1); // preenche os primeiros 999 bytes com A e depois o último como \0
-        // reg.dado2[sizeof(reg.dado2) - 1] = '\0';
-
-        // memset(reg.dado3, 'B', sizeof(reg.dado3) - 1);
-        // reg.dado3[sizeof(reg.dado3) - 1] = '\0';
-
+    Registro reg;
     switch (situacao) {
         // ordenação ascendente das chaves
         case 1:
@@ -98,7 +89,6 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
                 reg.dado1 = (rand() % qnt_registros) + 1;
                 preencherDados(&reg);
                 fwrite(&reg, sizeof(Registro), 1, arquivo);
-
             }
             break;
     }
