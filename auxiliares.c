@@ -84,12 +84,7 @@ void criarArquivo(const char* caminho, int qnt_registros, int situacao) {
             break;
         // ordenação aleatória
         case 3:
-            for (int i = 0; i < qnt_registros; i++) {
-                reg.chave = (rand() % qnt_registros) + 1;
-                reg.dado1 = (rand() % qnt_registros) + 1;
-                preencherDados(&reg);
-                fwrite(&reg, sizeof(Registro), 1, arquivo);
-            }
+            criarArquivoAleatorio(arquivo, qnt_registros);
             break;
     }
 
@@ -143,4 +138,27 @@ void inicializaMetricas(Metricas *metricas){
     metricas->transferencias = 0;
     metricas->comparacoes = 0;
     metricas->tempo = 0.0;
+}
+
+void criarArquivoAleatorio(FILE* arquivo, int qnt_registros) {
+    int *v = malloc(qnt_registros * sizeof(int));
+    for (int i = 0; i < qnt_registros; i++)
+        v[i] = i + 1;
+
+    for (int i = qnt_registros - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        int temp = v[i];
+        v[i] = v[j];
+        v[j] = temp;
+    }
+
+    Registro reg;
+    for (int i = 0; i < qnt_registros; i++) {
+        reg.chave = v[i];
+        reg.dado1 = (rand() % qnt_registros) + 1;
+        preencherDados(&reg);
+        fwrite(&reg, sizeof(Registro), 1, arquivo);
+    }
+
+    free(v);
 }

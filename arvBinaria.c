@@ -16,7 +16,7 @@ void criarArvBinaria(Config *config, FILE* arqOriginal, const char *arqArvBin, M
     novo.esq = -1;
     novo.dir = -1;
 
-    fread(&novo.reg, sizeof(Registro), 1, arqOriginal); // lê o primeiro registro do arquivo -> a raiz e salva na árvore binária
+    fread(&novo.reg, sizeof(Registro), 1, arqOriginal); // lê o primeiro registro do arquivo (a raiz) e salva na árvore binária
     fwrite(&novo, sizeof(No), 1, arvBin); // agora o arquivo tem: registro (raiz), -1, -1
 
     // aqui a raiz da árvore já está salva e já lemos o primeiro registro do arquivo original

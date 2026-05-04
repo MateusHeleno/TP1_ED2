@@ -36,5 +36,6 @@ void printRegistro(Registro reg, Metricas metricas, bool encontrado, const char*
 int* criaVetor(int tamanho);
 void destroiVetor(int *vet);
 void inicializaMetricas(Metricas *metricas);
+void criarArquivoAleatorio(FILE* arquivo, int qnt_registros);
 
 #endif
