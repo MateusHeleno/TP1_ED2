@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    bool encontrado = false;
     switch(config.metodo){
         // Acesso sequencial indexado
         case 1: {
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
             criarIndice(arquivo, vetorIndices, &config, &metricas);
 
             Moldura *moldura = inicializaMoldura();
-            bool encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, moldura, &config, &metricas);
+            encontrado = acessoSequencialIndexado(vetorIndices, arquivo, &reg, numPaginas, moldura, &config, &metricas);
 
             fim = clock();
             metricas.tempo = (double) (fim - comeco) / CLOCKS_PER_SEC;
@@ -66,19 +67,15 @@ int main(int argc, char *argv[]) {
 
         // Árvore Binária de Pesquisa
         case 2:
-            if (config.situacao != 3) {
-                printf("Esse método não aceita esse tipo de ordenação.\n");
-                return 0;
-            }
-
             Metricas metricas;
             inicializaMetricas(&metricas);
 
-            // Registro reg;
-            // reg.chave = config.chave;
+            Registro reg;
+            reg.chave = config.chave;
 
+            // cria o arquivo da árvore binária se já não existir
             char nomeArq[64];
-            sprintf(nomeArq, "arvBin/bin_%dreg.bin", config.qnt_registros);
+            sprintf(nomeArq, "arvBin/bin_%dreg_situacao%d.bin", config.qnt_registros, config.situacao);
             FILE* arqArv = fopen(nomeArq, "rb");
             if (!arqArv) {
                 criarArvBinaria(&config, arquivo, nomeArq, &metricas);
@@ -86,6 +83,13 @@ int main(int argc, char *argv[]) {
                 return 0;
             }
 
+            encontrado = pesquisaArvoreBinaria(arqArv, &reg, &metricas);
+            if (!encontrado) {
+                printf("registro não encontrado no arquivo.\n");
+                return 0;
+            }
+
+            printRegistro(reg, metricas, encontrado, nomeArquivo, config);
 
             break;
 

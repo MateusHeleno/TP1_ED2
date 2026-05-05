@@ -34,6 +34,7 @@ void insereNo(FILE* arvBin, Registro reg, Metricas *metricas) {
     inicializaNo(&novo, reg); // o novo nó recebe o registro atual do arquivo e será posicionado de acordo com sua chave e a de seu nó pai
 
     No temp;
+    inicializaNo(&temp, reg);
     long noPai = -1, noAtual = 0;
     while (noAtual != -1) { // procurar até achar um nodo que nao tem filho
         noPai = noAtual;
@@ -49,15 +50,16 @@ void insereNo(FILE* arvBin, Registro reg, Metricas *metricas) {
 
     // adiciona o novo no
     fseek(arvBin, 0, SEEK_END);
+    long posNovoNo = ftell(arvBin);
     fwrite(&novo, sizeof(No), 1, arvBin);
 
     // atualiza o ponteiro do nó pai
     fseek(arvBin, noPai, SEEK_SET);
     fread(&temp, sizeof(No), 1, arvBin);
     if (reg.chave < temp.reg.chave)
-        temp.esq = noAtual;
+        temp.esq = posNovoNo;
     else
-        temp.dir = noAtual;
+        temp.dir = posNovoNo;
 
     fseek(arvBin, noPai, SEEK_SET);
     fwrite(&temp, sizeof(No), 1, arvBin);
@@ -67,4 +69,29 @@ void inicializaNo(No* no, Registro reg) {
     no->dir = -1;
     no->esq = -1;
     no->reg = reg;
+}
+
+bool pesquisaArvoreBinaria(FILE* arvBin, Registro *reg, Metricas *metricas) {
+    No alvo;
+    long atual = 0;
+
+    while (atual != -1) {
+        metricas->transferencias++;
+        fseek(arvBin, atual, SEEK_SET); // na primeira iteração vai pra raiz do arquivo, nas próximas se movimenta de acordo com o valor do registro.
+        if (fread(&alvo, sizeof(No), 1, arvBin) != 1)
+            break;
+
+        metricas->comparacoes++;
+        if (reg->chave == alvo.reg.chave) {
+            *reg = alvo.reg;
+            return true;
+        }
+
+        else if (reg->chave < alvo.reg.chave)
+            atual = alvo.esq;
+        else
+            atual = alvo.dir;
+    }
+
+    return false;
 }
